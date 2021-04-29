@@ -105,7 +105,7 @@ d.meter = 2
 print d.meter, d.foot  # 2.0 6.5616
 ```
 
-虽然d.meter是一个对象，但是因为在Meter()类中重写了__get__方法，所以在使用d.meter是调用了Meter()  的__get__方法，返回了数字
+虽然d.meter是一个对象，但是因为在Meter()类中重写了__get__方法，所以在使用d.meter是调用了Meter()  的__get__方法，返回了数字</br>
 描述器的特点：
 
 ```markdown
@@ -120,6 +120,7 @@ print d.meter, d.foot  # 2.0 6.5616
 不可变类型需要实现__len__和__getitem__，可变类型需要在不可变类型的基础上实现__delitem__和__setitem__，如果要自定义容器可迭代，还需要实现__iter__方法
 被调用情况：
 x = X()
+```markdown
 - __len__ :  len(x) 
 - __getitem__: x[A]
 - __setitem__: x[B] = C
@@ -127,6 +128,140 @@ x = X()
 - __iter__:  for n in x 或 iter(n) 时调用
 - __reversed__: reversed(x) 时调用
 - __contains__: n in x 或 item not in x 时调用
-- __missing__: 如 a = {"b": "c"}, 调用a[notexist]时会调用a.__missing__['notexist']
+- __missing__: 如 a = {"b": "c"}, 调用a[notexist]时会调用a.__missing__('notexist')
+```
+
+两个自定义数据结构的例子：
+```python
+# -*- coding: utf-8 -*-
+class FunctionalList:
+    ''' 实现了内置类型list的功能,并丰富了一些其他方法: head, tail, init, last, drop, take'''
+
+    def __init__(self, values=None):
+        if values is None:
+            self.values = []
+        else:
+            self.values = values
+
+    def __len__(self):
+        return len(self.values)
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    def __setitem__(self, key, value):
+        self.values[key] = value
+
+    def __delitem__(self, key):
+        del self.values[key]
+
+    def __iter__(self):
+        return iter(self.values)
+
+    def __reversed__(self):
+        return FunctionalList(reversed(self.values))
+
+    def append(self, value):
+        self.values.append(value)
+    def head(self):
+        # 获取第一个元素
+        return self.values[0]
+    def tail(self):
+        # 获取第一个元素之后的所有元素
+        return self.values[1:]
+    def init(self):
+        # 获取最后一个元素之前的所有元素
+        return self.values[:-1]
+    def last(self):
+        # 获取最后一个元素
+        return self.values[-1]
+    def drop(self, n):
+        # 获取所有元素，除了前N个
+        return self.values[n:]
+    def take(self, n):
+        # 获取前N个元素
+        return self.values[:n]
+        
+class AutoVivification(dict):
+    """Implementation of perl's autovivification feature."""
+    def __missing__(self, key):
+        value = self[key] = type(self)()
+        return value
+
+weather = AutoVivification()
+weather['china']['guangdong']['shenzhen'] = 'sunny'
+weather['china']['hubei']['wuhan'] = 'windy'
+weather['USA']['California']['Los Angeles'] = 'sunny'
+print weather
+
+# 结果输出:{'china': {'hubei': {'wuhan': 'windy'}, 'guangdong': {'shenzhen': 'sunny'}}, 'USA':    {'California': {'Los Angeles': 'sunny'}}}
+```
+
+### 上下文管理
+```要实现通过with 进行某个操作，可以通过对要使用with的方法或类添加__enter__ 和 __exit__方法
+__enter__中定义一些初始化的操作，__exit__中定义退出时的操作，如关闭文件等
+
+__enter__(self)
+__exit__(self, exception_type, exception_value, traceback)
+
+如果__exit__返回True, 则不对错误进行处理，如果返回None,则会正常抛出异常
+```
+
+### 对象的序列化
+pass
+
+### 运算相关的魔术方法
+```
+- __cmp__(self, value)  结果根据self-value来判断，self<value, 返回负数， self>value, 返回正数 **python3中被废弃**
+- __eq__(self, value) == 的判断    equal
+- __ne__(self, value) != 的判断    not equal
+- __lt__(self, value) <  的判断    less than
+- __gt__(self, value) >  的判断    greater than
+- __le__(self, value) <= 的判断    less or equal
+- __ge__(self, value) >= 的判断    greater or equal
+
+```
+
+### 一元运算符和函数
+```
+- __pos__(self, value)    +
+- __neg__(self, value)    -
+- __inverter__(self, value)  ~ 算法
+- __abs__(self)    abs()
+- __round__(self)    round()
+- __floor__(self)    向下取整 math.floor()
+- __ceil__(self)    向上取整 math.ceil()
+- __trunc__(self)    向0取整 math.trunc()
+
+```
+
+### 算数运算
+```
+- __add__(self, value)    加法
+- __sub__(self, value)    减法
+- __mul__(self, value)    乘法
+- __floordiv__(self, value) // 除法向下取整
+- __truediv__(self, value)    / 除法， python3是truediv ,python2 是div
+- other pass
+```
+
+### 类型转化
+```
+- __int__()  转为int的操作
+- __str__()  转为字符串
+- pass
+```
+
+### 其它 
+pass
+
+
+参考：[介绍python的魔术方法](https://segmentfault.com/a/1190000007256392)
+
+
+
+
+
+
 
 
