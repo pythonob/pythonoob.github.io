@@ -107,12 +107,26 @@ print d.meter, d.foot  # 2.0 6.5616
 
 虽然d.meter是一个对象，但是因为在Meter()类中重写了__get__方法，所以在使用d.meter是调用了Meter()  的__get__方法，返回了数字
 描述器的特点：
+
 ```markdown
 1. 描述器对象不能单独存在
 2. 描述器对象可以访问其拥有者实例的属性，如在Foot()描述器中，__get__方法调用了instance的meter属性
 3. 一个类要成为描述器，必须实现__get__, __set__， __deleete__中的至少一个方法
-```
-
-```markdown
 面向对象编程时，如果一个类的属性具有相互依赖的关系，可以使用描述器来编写代码可以巧妙地组织逻辑
 ```
+
+### 构造自定义容器
+
+不可变类型需要实现__len__和__getitem__，可变类型需要在不可变类型的基础上实现__delitem__和__setitem__，如果要自定义容器可迭代，还需要实现__iter__方法
+被调用情况：
+x = X()
+- __len__ :  len(x) 
+- __getitem__: x[A]
+- __setitem__: x[B] = C
+- __delitem__: del X[D]
+- __iter__:  for n in x 或 iter(n) 时调用
+- __reversed__: reversed(x) 时调用
+- __contains__: n in x 或 item not in x 时调用
+- __missing__: 如 a = {"b": "c"}, 调用a[notexist]时会调用a.__missing__['notexist']
+
+
